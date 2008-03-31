@@ -1,0 +1,7 @@
+usr/lib/scim-1.0/*/IMEngine/hangul.so
+usr/lib/scim-1.0/*/SetupUI/hangul-imengine-setup.so
+
+usr/share/locale/*/LC_MESSAGES/scim-hangul.mo
+usr/share/scim/icons/scim-hangul.png
+
+usr/share/scim/hangul/symbol.txt

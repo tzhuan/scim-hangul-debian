@@ -1,0 +1,8 @@
+# debian/watch file for scim-hangul
+# written by Ming Hua on 2007.05.27
+
+# format version number
+version=3
+# special URL parsed as qa.debian.org redirector for sourceforge
+http://sf.net/scim/scim-hangul-([\d\.]+)\.tar\.gz debian uupdate
+

@@ -1,0 +1,90 @@
+scim-hangul (0.3.2-1) unstable; urgency=low
+
+  * New upstream version.  (Closes: #462720)
+  * Reintroduce dpatch system.
+    - Add dpatch to build dependency.
+    - Adjust debian/rules accordingly.
+  * Fix FTBFS with g++-4.3/gcc-snapshot, patch by Ming Hua.  (Closes: #441591)
+    - Add 10_missing-header.dpatch.
+  * Upgrade policy version to 3.7.3.  (no changes required)
+  * Anho Ki contribution to build the package  (no changes required)
+
+ -- Yooseong Yang <yooseong@debian.org>  Mon, 31 Mar 2008 22:01:54 +0900
+
+scim-hangul (0.3.1-1) unstable; urgency=low
+
+  * New upstream release, thanks to Anho Ki's help.  (Closes: #432926)
+    - Add build dependency libhangul-dev (>= 0.0.4).
+  * Rewrite debian/rules.
+    - Use the platform detection code recommended by autotools-dev.
+    - Remove binary-common target and separate binary-arch and binary-indep
+      targets completely.
+    - Fix Makefile (about disabling skim support) in config.status target
+      instead of clean target.
+  * Remove dpatch build dependency as there is no Debian patches anymore.
+    Also remove related targets in debian/rules.
+  * Update debian/copyright.
+    - Use the correct license notice.  It should be GPL v2 or later, not GPL
+      v2 only.  Also refer to the /usr/share/common-licenses/GPL-2 file for
+      license text instead of the /usr/share/common-licenses/GPL symlink.
+    - Add note about current Debian maintainers.
+    - Update dates in the upstream copyright notice.
+    - Add note about Debian packaging's copyright and license.
+  * Change co-maintainer Ming Hua's email address.
+
+ -- Yooseong Yang <yooseong@debian.org>  Tue, 11 Sep 2007 11:55:31 -0500
+
+scim-hangul (0.2.2-2) unstable; urgency=low
+
+  * Adapt to the $(moduledir) change in scim 1.4.6.  (Closes: #424012)
+    - Bump build dependency to libscim-dev (>= 1.4.6).
+    - Drop 10scim-plugin-module-install-dir dpatch, no longer needed.
+    - Use wildcard "*" instead of hardcoded "1.4.0" for scim module path in
+      debian/install and debian/rules, making it possible to binNMU when scim
+      module ABI changes.
+  * Add scim to dependency.  All IM module packages should depend on scim,
+    because they would be useless without scim installed.  Users only need to
+    install the IM module package they need and should get scim automatically.
+  * Update debian/watch to use the qa.debian.org redirect URL for
+    sourceforge.net.
+  * Upgarde to policy version 3.7.2.2, no actual changes needed.
+
+ -- Yooseong Yang <yooseong@debian.org>  Sun, 10 Jun 2007 10:53:00 +0900
+
+scim-hangul (0.2.2-1) unstable; urgency=low
+
+  [ Ming Hua ]
+  * New upstream release.
+  * Build-depend on autotools-dev and use config.{guess,sub} from
+    autotools-dev package unconditionally.
+
+  [ Yooseong Yang ]
+  * skim/admin/CVS removed in source tree.
+
+ -- Yooseong Yang <yooseong@debian.org>  Thu,  1 Jun 2006 15:31:35 +0900
+
+scim-hangul (0.2.1-1) unstable; urgency=low
+
+  [ Ming Hua ]
+  * New upstream release.
+  * Update upstream homepage information.
+  * Add myself as an uploader with the maintainer's agreement.
+
+  [ Yooseong Yang ]
+  * Add another korean truetype font in suggest field of control file. 
+
+ -- Yooseong Yang <yooseong@debian.org>  Sat, 31 Dec 2005 11:43:40 +0900
+
+scim-hangul (0.1.2-2) unstable; urgency=low
+
+  * Added patch by Ming Hua <minghua@rice.edu> against SCIM 1.4 ABI
+    (closes: #336270)
+
+ -- Yooseong Yang <yooseong@debian.org>  Fri, 4 Nov 2005 11:18:22 +0900
+
+scim-hangul (0.1.2-1) unstable; urgency=low
+
+  * Initial release, based on upstream version (0.1.2) (closes: #278084)
+
+ -- Yooseong Yang <yooseong@debian.org>  Wed, 10 Nov 2004 09:30:22 +0900
+
