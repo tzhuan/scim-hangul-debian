@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT(scim-hangul, 0.3.2, choe.hwanjing@gmail.com) #do not forget to update skim/configure.in.in
+AC_INIT(scim-hangul, 0.4.0, choe.hwanjing@gmail.com) #do not forget to update skim/configure.in.in
 AC_CONFIG_SRCDIR([src/scim_hangul_imengine.h])
 
 # Save this value here, since automake will set cflags and cxxflags later
@@ -7,8 +7,8 @@ cflags_set=${CFLAGS+set}
 cppflags_set=${CPPFLAGS+set}
 
 SCIM_HANGUL_MAJOR_VERSION=0
-SCIM_HANGUL_MINOR_VERSION=3
-SCIM_HANGUL_MICRO_VERSION=2
+SCIM_HANGUL_MINOR_VERSION=4
+SCIM_HANGUL_MICRO_VERSION=0
 
 SCIM_HANGUL_VERSION=$SCIM_HANGUL_MAJOR_VERSION.$SCIM_HANGUL_MINOR_VERSION.$SCIM_HANGUL_MICRO_VERSION
 
@@ -20,15 +20,7 @@ AC_SUBST(SCIM_HANGUL_VERSION)
 # Init automake stuff
 AM_INIT_AUTOMAKE
 AM_CONFIG_HEADER([config.h])
-
-# Init gettext
-ALL_LINGUAS="de fr ja ko nl pa zh_CN"
-AM_GNU_GETTEXT
-AM_MKINSTALLDIRS
-
-GETTEXT_PACKAGE=scim-hangul
-AC_SUBST(GETTEXT_PACKAGE)
-AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [The gettext domain])
+AM_SILENT_RULES
 
 # Init libtool
 AC_DISABLE_STATIC
@@ -46,8 +38,17 @@ AC_LANG(C++)
 AC_C_CONST
 AC_TYPE_SIZE_T
 
+# Init gettext
+AM_GNU_GETTEXT([external])
+AM_GNU_GETTEXT_VERSION([0.18.1])
+ALL_LINGUAS="de fr ja ko nl pa zh_CN"
+
+GETTEXT_PACKAGE=scim-hangul
+AC_SUBST(GETTEXT_PACKAGE)
+AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [The gettext domain])
+
 # Checks for libraries.
-PKG_CHECK_MODULES(LIBHANGUL,[libhangul >= 0.0.4])
+PKG_CHECK_MODULES(LIBHANGUL,[libhangul >= 0.0.12])
 
 SCIM_VERSION=0.99.8
 
@@ -93,10 +94,11 @@ if test "$enable_debug" = "yes"; then
     CXXFLAGS="$CXXFLAGS -g"
 fi
 
-AC_ARG_ENABLE(skim-support,
-              [  --disable-skim-support  Enable skim Setup UI],
-	      skim_support=no,
-	      skim_support=yes)
+# Temporarily disable to build skim module
+#AC_ARG_ENABLE(skim-support,
+#              [  --disable-skim-support  Enable skim Setup UI],
+#	      skim_support=no,
+#	      skim_support=yes)
 
 AM_CONDITIONAL(SCIM_BUILD_SKIM_SETUP, [test "$skim_support" = "yes"])
 
@@ -124,9 +126,7 @@ SCIM_HANGUL_DATADIR=${SCIM_DATADIR}/hangul
 AC_SUBST(SCIM_HANGUL_DATADIR)
 
 AC_CONFIG_FILES([Makefile
-		 intl/Makefile
 		 po/Makefile.in
-		 m4/Makefile
 		 src/Makefile
 		 data/Makefile
 		 scim-hangul.spec])
