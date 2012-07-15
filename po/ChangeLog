@@ -1,4 +1,0 @@
-2007-12-30  gettextize  <bug-gnu-gettext@gnu.org>
-
-	* Makefile.in.in: Upgrade to gettext-0.16.1.
-

@@ -34,12 +34,13 @@ EXTRA_DIST = \
 
 ## @end 1
 
-if SCIM_HANGUL_ENABLE_SKIM_SUPPORT
-SKIM_SUBDIR=skim
-endif
+# Temporarily disable to skim module
+#if SCIM_HANGUL_ENABLE_SKIM_SUPPORT
+#SKIM_SUBDIR=skim
+#endif
 
 AUTOMAKE_OPTIONS 	= gnu
-SUBDIRS 		= m4 intl src data po $(SKIM_SUBDIR)
+SUBDIRS 		= src data po $(SKIM_SUBDIR)
 ## @start 1
 MAINTAINERCLEANFILES 	= Makefile.in aclocal.m4 configure config.h.in $(AUX_DIST)
 
@@ -53,8 +54,7 @@ ACLOCAL			= aclocal -I $(ac_aux_dir)
 
 ACLOCAL_AMFLAGS = -I m4
 
-.PHONY: ChangeLog
-
-ChangeLog:
-	svn2cl --include-rev --authors=$(top_srcdir)/developers -f $(top_srcdir)/$@
-
+dist-hook:
+	if test -d .git ; then \
+		git log -name-status --date=iso > $(distdir)/ChangeLog ; \
+	fi

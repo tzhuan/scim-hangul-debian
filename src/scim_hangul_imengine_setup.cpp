@@ -34,6 +34,7 @@
   #include <config.h>
 #endif
 
+#include <cstring>
 #include <scim.h>
 #include <gtk/scimkeyselection.h>
 
@@ -48,6 +49,8 @@
   #define textdomain(domain)
   #define bind_textdomain_codeset(domain,codeset)
 #endif
+
+#include <hangul.h>
 
 using namespace scim;
 
@@ -193,7 +196,7 @@ static KeyBindingData key_bindings[] =
         // key
         SCIM_CONFIG_HANJA_MODE_KEY,
         // label
-        N_("Hanja mode keys:"),
+        N_("Hanja Lock keys:"),
         // title
         N_("Select a key to toggle hanja mode keys"),
         // tooltip
@@ -225,15 +228,33 @@ static void
 on_default_combo_box_changed         (GtkComboBox *combobox,
                                       gpointer     user_data);
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+#define gtk_hbox_new(a, b)  gtk_box_new(GTK_ORIENTATION_HORIZONTAL, b)
+#define gtk_vbox_new(a, b)  gtk_box_new(GTK_ORIENTATION_VERTICAL, b)
+#endif
+
+#if GTK_CHECK_VERSION(2, 12, 0)
+static GtkWidget *
+create_options_page();
+
+static GtkWidget *
+create_keyboard_page();
+#else
 static GtkWidget *
 create_options_page(GtkTooltips *tooltip);
 
 static GtkWidget *
 create_keyboard_page(GtkTooltips *tooltip);
+#endif
 
 // Function implementations.
+#if GTK_CHECK_VERSION(2, 12, 0)
+static GtkWidget *
+create_options_page()
+#else
 static GtkWidget *
 create_options_page(GtkTooltips *tooltips)
+#endif
 {
     GtkWidget *vbox;
     GtkWidget *button;
@@ -243,25 +264,41 @@ create_options_page(GtkTooltips *tooltips)
 
     button = gtk_check_button_new_with_mnemonic (_("_Use ascii input mode"));
     gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
+#if GTK_CHECK_VERSION(2, 12, 0)
+    gtk_widget_set_tooltip_text(button,
+                          _("Whether to enable to change the input mode "
+                            "between hangul and ascii mode."));
+#else
     gtk_tooltips_set_tip(tooltips, button,
                           _("Whether to enable to change the input mode "
                             "between hangul and ascii mode."), NULL);
+#endif
     g_signal_connect(G_OBJECT(button), "toggled",
                      G_CALLBACK(on_default_toggle_button_toggled), NULL);
     use_ascii_mode_button = button;
 
     button = gtk_check_button_new_with_mnemonic (_("_Show candidate comment"));
     gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
+#if GTK_CHECK_VERSION(2, 12, 0)
+    gtk_widget_set_tooltip_text(button,
+            _("Whether to show the comment of candidates or not."));
+#else
     gtk_tooltips_set_tip(tooltips, button,
                           _("Whether to show the comment of candidates or not."), NULL);
+#endif
     g_signal_connect(G_OBJECT(button), "toggled",
                      G_CALLBACK(on_default_toggle_button_toggled), NULL);
     show_candidate_comment_button = button;
 
     button = gtk_check_button_new_with_mnemonic (_("_Commit by word"));
     gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
+#if GTK_CHECK_VERSION(2, 12, 0)
+    gtk_widget_set_tooltip_text(button,
+            _("Whether not to commit until any non-hangul character is inputed."));
+#else
     gtk_tooltips_set_tip(tooltips, button,
                           _("Whether not to commit until any non-hangul character is inputed."), NULL);
+#endif
     g_signal_connect(G_OBJECT(button), "toggled",
                      G_CALLBACK(on_default_toggle_button_toggled), NULL);
     commit_by_word_button = button;
@@ -269,8 +306,13 @@ create_options_page(GtkTooltips *tooltips)
     return vbox;
 }
 
+#if GTK_CHECK_VERSION(2, 12, 0)
+static GtkWidget *
+create_keyboard_page()
+#else
 static GtkWidget *
 create_keyboard_page(GtkTooltips *tooltips)
+#endif
 {
     unsigned int i;
 
@@ -293,14 +335,22 @@ create_keyboard_page(GtkTooltips *tooltips)
     GtkWidget *vbox2 = gtk_vbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(hbox), vbox2, FALSE, TRUE, 0);
 
+#if GTK_CHECK_VERSION(2, 24, 0)
+    GtkWidget *combo_box = gtk_combo_box_text_new();
+#else
     GtkWidget *combo_box = gtk_combo_box_new_text();
+#endif
     gtk_box_pack_start(GTK_BOX(vbox2), combo_box, FALSE, TRUE, 0);
-    gtk_combo_box_append_text(GTK_COMBO_BOX(combo_box), _("2bul"));
-    gtk_combo_box_append_text(GTK_COMBO_BOX(combo_box), _("3bul 2bul-shifted"));
-    gtk_combo_box_append_text(GTK_COMBO_BOX(combo_box), _("3bul Final"));
-    gtk_combo_box_append_text(GTK_COMBO_BOX(combo_box), _("3bul 390"));
-    gtk_combo_box_append_text(GTK_COMBO_BOX(combo_box), _("3bul No-Shift"));
-    gtk_combo_box_append_text(GTK_COMBO_BOX(combo_box), _("3bul Yetgeul"));
+
+    unsigned int n = hangul_ic_get_n_keyboards();
+    for (i = 0; i < n; i++) {
+	const char* name = hangul_ic_get_keyboard_name(i);
+#if GTK_CHECK_VERSION(2, 24, 0)
+	gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(combo_box), NULL, name);
+#else
+	gtk_combo_box_append_text(GTK_COMBO_BOX(combo_box), name);
+#endif
+    }
     g_signal_connect(G_OBJECT(combo_box), "changed",
                      G_CALLBACK (on_default_combo_box_changed), NULL);
     keyboard_layout_combo = combo_box;
@@ -338,7 +388,7 @@ create_keyboard_page(GtkTooltips *tooltips)
         gtk_table_attach (GTK_TABLE (table), key_bindings[i].entry, 1, 2, i, i+1,
                           (GtkAttachOptions) (GTK_FILL|GTK_EXPAND),
                           (GtkAttachOptions) (GTK_FILL), 4, 4);
-        gtk_entry_set_editable (GTK_ENTRY (key_bindings[i].entry), FALSE);
+        gtk_editable_set_editable (GTK_EDITABLE (key_bindings[i].entry), FALSE);
         gtk_entry_set_text (GTK_ENTRY (key_bindings[i].entry),
                             key_bindings[i].data.c_str());
 
@@ -354,8 +404,13 @@ create_keyboard_page(GtkTooltips *tooltips)
         g_signal_connect(G_OBJECT(key_bindings[i].entry), "changed",
                          G_CALLBACK (on_default_editable_changed), NULL);
 
+#if GTK_CHECK_VERSION(2, 12, 0)
+        gtk_widget_set_tooltip_text(key_bindings[i].entry,
+                              _(key_bindings[i].tooltip));
+#else
         gtk_tooltips_set_tip(tooltips, key_bindings[i].entry,
                               _(key_bindings[i].tooltip), NULL);
+#endif
     }
 
     return vbox1;
@@ -367,20 +422,30 @@ create_setup_window ()
     GtkWidget *notebook;
     GtkWidget *label;
     GtkWidget *page;
-    GtkTooltips *tooltips;
 
-    tooltips = gtk_tooltips_new ();
+#if GTK_CHECK_VERSION(2, 12, 0)
+#else
+    GtkTooltips *tooltips = gtk_tooltips_new ();
+#endif
 
     // Create the Notebook.
     notebook = gtk_notebook_new ();
 
     // Create the first page.
+#if GTK_CHECK_VERSION(2, 12, 0)
+    page = create_keyboard_page();
+#else
     page = create_keyboard_page(tooltips);
+#endif
     label = gtk_label_new (_("Keyboard"));
     gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
 
     // Create the second page.
+#if GTK_CHECK_VERSION(2, 12, 0)
+    page = create_options_page();
+#else
     page = create_options_page(tooltips);
+#endif
     label = gtk_label_new (_("Options"));
     gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
 
@@ -399,21 +464,14 @@ load_config (const ConfigPointer &config)
 
     // keyboard layout option
     String layout = config->read(String(SCIM_CONFIG_LAYOUT), String("2"));
-    int no = -1;
-    if (layout == "2") {
-        no = 0;
-    } else if (layout == "32") {
-        no = 1;
-    } else if (layout == "3f") {
-        no = 2;
-    } else if (layout == "39") {
-        no = 3;
-    } else if (layout == "3s") {
-        no = 4;
-    } else if (layout == "3y") {
-        no = 5;
+    int n = hangul_ic_get_n_keyboards();
+    for (int i = 0; i < n; ++i) {
+	const char* id = hangul_ic_get_keyboard_id(i);
+	if (layout == id) {
+	    gtk_combo_box_set_active(GTK_COMBO_BOX(keyboard_layout_combo), i);
+	    break;
+	}
     }
-    gtk_combo_box_set_active(GTK_COMBO_BOX(keyboard_layout_combo), no);
 
     // key bindings
     for (unsigned int i = 0; i < G_N_ELEMENTS(key_bindings); ++ i) {
@@ -446,20 +504,8 @@ save_config (const ConfigPointer &config)
         return;
 
     int no = gtk_combo_box_get_active(GTK_COMBO_BOX(keyboard_layout_combo));
-    String layout;
-    if (no == 0) {
-        layout = "2";
-    } else if (no == 1) {
-        layout = "32";
-    } else if (no == 2) {
-        layout = "3f";
-    } else if (no == 3) {
-        layout = "39";
-    } else if (no == 4) {
-        layout = "3s";
-    } else if (no == 5) {
-        layout = "3y";
-    }
+    const char* id = hangul_ic_get_keyboard_id(no);
+    String layout = id == NULL ? "2" : id;
     config->write(String(SCIM_CONFIG_LAYOUT), layout);
 
     for (unsigned int i = 0; i < G_N_ELEMENTS(key_bindings); ++ i) {
@@ -541,6 +587,4 @@ on_default_key_selection_clicked (GtkButton *button,
     }
 }
 
-/*
-vi:ts=4:nowrap:expandtab
-*/
+// vi:ts=8:sts=4:sw=4:nowrap:expandtab:

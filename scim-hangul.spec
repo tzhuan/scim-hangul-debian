@@ -1,5 +1,5 @@
 %define nam             scim-hangul
-%define ver             0.3.2
+%define ver             0.4.0
 %define rel             1
 %define build_setup     1
 
