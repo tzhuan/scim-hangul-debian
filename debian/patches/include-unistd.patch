@@ -1,0 +1,12 @@
+diff --git a/src/scim_hangul_imengine.cpp b/src/scim_hangul_imengine.cpp
+index 39e8f34..cf4defb 100644
+--- a/src/scim_hangul_imengine.cpp
++++ b/src/scim_hangul_imengine.cpp
+@@ -34,6 +34,7 @@
+ #endif
+ 
+ #include <cstring>
++#include <unistd.h>
+ #include <scim.h>
+ #include "scim_hangul_imengine.h"
+ 
