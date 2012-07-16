@@ -1,101 +1,15 @@
 #!/usr/bin/make -f
-#
-# debian/rules for scim-hangul package
-# Copyright Ming Hua <minghua-guest@users.alioth.debian.org>, 2006,2007
-#
-# This file is distributed under the same license as scim-hangul.
+export DH_VERBOSE=1
+export DH_OPTIONS=-v
+export DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
-# uncomment this to turn on verbose mode
-#export DH_VERBOSE = 1
+%:
+	dh $@ --with autotools-dev
 
-# include dpatch's ruleset
-include /usr/share/dpatch/dpatch.make
+override_dh_makeshlibs:
+	# disable dh_makeshlibs
 
-# set the platform for configure script, especially useful for cross-compiling
-DEB_HOST_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
-DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
-ifeq ($(DEB_HOST_GNU_TYPE), $(DEB_BUILD_GNU_TYPE))
-	CONFFLAGS += --build=$(DEB_BUILD_GNU_TYPE)
-else
-	CONFFLAGS += --build=$(DEB_BUILD_GNU_TYPE) --host=$(DEB_HOST_GNU_TYPE)
-endif
-# for more information, see /usr/share/doc/autotools-dev/README.Debian.gz
-
-# set compiler flags, enable warning and debug
-CFLAGS += -W -g
-CXXFLAGS += -W -g
-# set optimization level
-ifeq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-	CFLAGS += -O
-	CXXFLAGS += -O
-else
-	CFLAGS += -O0
-	CXXFLAGS += -O0
-endif
-
-clean: clean-patched unpatch
-
-clean-patched:
-	dh_testdir
-	dh_testroot
-	rm -f build-stamp
-	# only run "make distclean" if a Makefile exists
-	[ ! -f Makefile ] || $(MAKE) distclean
-	# remove existent config.{guess,sub} as we use the ones from
-	# autotools-dev package
-	rm -f config.guess config.sub
-	dh_clean
-
-
-config.status: $(DPATCH_STAMPFN)
-	dh_testdir
-	# link config.{guess,sub} from autotools-dev package
-	ln -sf /usr/share/misc/config.guess config.guess
-	ln -sf /usr/share/misc/config.sub config.sub
-	rm -f config.cache
-	# run configure with all necessary definitions and options
-	./configure \
-		CFLAGS="$(CFLAGS)" \
-		CXXFLAGS="$(CXXFLAGS)" \
-		$(CONFFLAGS) \
-		--prefix=/usr \
-		--disable-static \
-		--disable-skim-support
-	# fix broken Makefile when skim support is disabled
-	sed -i -e 's/ skim$$//' Makefile
-
-build: build-stamp
-build-stamp: config.status
-	dh_testdir
-	dh_clean
-	$(MAKE)
-	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
-	# clean up unnecessary library files for modules
-	rm debian/tmp/usr/lib/scim-1.0/*/*/*.la
-	# distribute files to different binary packages
-	dh_install --sourcedir=debian/tmp --fail-missing
-	touch $@
-
-binary: binary-arch binary-indep
-
-binary-arch: build
-	dh_testdir
-	dh_testroot
-	dh_installchangelogs -a ChangeLog
-	dh_installdocs -a
-	dh_strip -a
-	dh_compress -a
-	dh_fixperms -a
-	dh_installdeb -a
-	dh_shlibdeps -a
-	dh_gencontrol -a
-	dh_md5sums -a
-	dh_builddeb -a
-
-binary-indep: build
-	# no architecture independent packages
-
-.SUFFIXES:
-.PHONY: clean build binary binary-arch binary-indep patch unpatch clean-patched
-
-# vim:textwidth=0:
+override_dh_auto_install:
+	dh_auto_install
+	# these are not used.
+	rm debian/scim-hangul/usr/lib/$(DEB_HOST_MULTIARCH)/scim-1.0/*/*/*.la
