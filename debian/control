@@ -1,14 +1,15 @@
 Source: scim-hangul
 Section: utils
 Priority: optional
-Maintainer: Yooseong Yang <yooseong@gmail.com>
-Uploaders: Ming Hua <minghua-guest@users.alioth.debian.org>
-Build-Depends: debhelper (>= 4.0.1), dpatch, autotools-dev, libgtk2.0-dev, libscim-dev (>= 1.4.6), libhangul-dev (>= 0.0.4)
-Standards-Version: 3.7.3
+Maintainer: Tz-Huan Huang <tzhuan@gmail.com>
+Build-Depends: debhelper (>= 9), autotools-dev, libscim-dev (>= 1.4.14),
+ libhangul-dev (>= 0.0.4)
+Standards-Version: 3.9.3
+Homepage: https://github.com/choehwanjin/scim-hangul
 
 Package: scim-hangul
 Architecture: any
-Depends: scim, ${shlibs:Depends}
+Depends: scim, ${shlibs:Depends}, ${misc:Depends}
 Suggests: ttf-unfonts, ttf-alee
 Description: Hangul Input Method Engine for SCIM
  SCIM (Smart Common Input Method) is an input method (IM) platform.
